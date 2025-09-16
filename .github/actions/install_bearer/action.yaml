@@ -1,11 +1,6 @@
 name: 'Installs Bearer CLI'
 description: 'Installs Bearer CLI'
 
-# inputs:
-#   npm-token:
-#     description: 'NPM token for package installation'
-#     required: true
-
 runs:
   using: "composite"
   steps:
@@ -16,5 +11,3 @@ runs:
         echo "deb [trusted=yes] https://apt.fury.io/bearer/ /" | sudo tee -a /etc/apt/sources.list.d/fury.list
         sudo apt-get update
         sudo apt-get install bearer
-      # env:
-      #   NPM_CONFIG_IGNORE_SCRIPTS: true
