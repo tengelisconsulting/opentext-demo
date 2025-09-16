@@ -9,6 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Bearer
+        uses: ./.github/actions/install_bearer
+
       - name: Test
         id: test
         run: pwd
