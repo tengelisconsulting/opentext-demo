@@ -16,4 +16,4 @@ jobs:
       - name: Scan
         id: test
         run: |
-          bearer scan ./demoapp
+          bearer scan ./demoapp --fail-on-severity critical
