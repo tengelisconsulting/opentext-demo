@@ -4,6 +4,7 @@ on: push
 
 jobs:
   vulnerability-scan:
+    name: vulnerability-scan
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
