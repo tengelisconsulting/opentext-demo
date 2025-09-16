@@ -3,7 +3,7 @@ name: Vulnerability Scan
 on: push
 
 jobs:
-  yarn-test-integration:
+  vulnerability-scan:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
@@ -12,6 +12,7 @@ jobs:
       - name: Setup Bearer
         uses: ./.github/actions/install_bearer
 
-      - name: Test
+      - name: Scan
         id: test
-        run: pwd
+        run: |
+          bearer scan ./demoapp
