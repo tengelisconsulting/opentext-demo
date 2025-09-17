@@ -25,9 +25,8 @@ jobs:
       - name: Scan
         id: test
         run: |
-          bearer scan ./demoapp --fail-on-severity critical &> /tmp/scan-output
+          if $(bearer scan ./demoapp --fail-on-severity critical --output /tmp/scan-output); then echo 'scan complete - no critical vulnerabilities'; else echo'scan complete - critical vulnerabilities found!'; touch /tmp/shouldfail; fi
           cat /tmp/scan-output
-          if $?; then echo "scan complete - no critical vulnerabilities"; else echo "scan complete - critical vulnerabilities found!"; touch /tmp/shouldfail; fi
 
       - name: Upload scan to S3
         run: |
