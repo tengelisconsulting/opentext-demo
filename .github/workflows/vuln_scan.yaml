@@ -12,8 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # - name: Setup Bearer
-      #   uses: ./.github/actions/install_bearer
+      - name: Setup Bearer
+        uses: ./.github/actions/install_bearer
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
@@ -22,16 +22,24 @@ jobs:
           role-to-assume: arn:aws:iam::621890795306:role/Github-S3
           role-session-name: gitHubActions
 
-      # - name: Scan
-      #   id: test
-      #   run: |
-      #     bearer scan ./demoapp --fail-on-severity critical
-      - name: Check AWS Session
+      - name: Scan
+        id: test
         run: |
-          # Your commands that require AWS credentials
-          aws sts get-caller-identity
+          bearer scan ./demoapp --fail-on-severity critical > /tmp/scan-output
+          if $?; then
+            echo "scan complete - no critical vulnerabilities"
+          else
+            echo "scan complete - critical vulnerabilities found!"
+            touch /tmp/shouldfail
+          fi
 
-      - name: Test S3 connection
+      - name: Upload scan to S3
         run: |
-          # Your commands that require AWS credentials
-          echo "tester\n" > /tmp/testfile && aws s3api put-object --bucket opentext-demo-code-audit --key vuln-scans/test.txt --body /tmp/testfile
+          aws sts get-caller-identity
+          aws s3api put-object --bucket opentext-demo-code-audit --key vuln-scans/$(date '+%Y-%m-%dT%H:%M:%S').$(git rev-parse --short HEAD) --body /tmp/scan-output
+
+      - name: Fail on scan failure
+        run: |
+          if [ -f /tmp/shouldfail ];
+            exit 1
+          fi
