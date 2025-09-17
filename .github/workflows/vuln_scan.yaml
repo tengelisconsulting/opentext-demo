@@ -13,7 +13,18 @@ jobs:
       - name: Setup Bearer
         uses: ./.github/actions/install_bearer
 
-      - name: Scan
-        id: test
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::621890795306:role/Github-S3
+          role-session-name: gitHubActions
+
+      # - name: Scan
+      #   id: test
+      #   run: |
+      #     bearer scan ./demoapp --fail-on-severity critical
+      - name: Check AWS Session
         run: |
-          bearer scan ./demoapp --fail-on-severity critical
+          # Your commands that require AWS credentials
+          aws sts get-caller-identity
