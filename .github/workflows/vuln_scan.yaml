@@ -30,3 +30,8 @@ jobs:
         run: |
           # Your commands that require AWS credentials
           aws sts get-caller-identity
+
+      - name: Test S3 connection
+        run: |
+          # Your commands that require AWS credentials
+          echo "tester\n" > /tmp/testfile && aws s3api put-object --bucket opentext-demo-code-audit --key vuln-scans/test.txt --body /tmp/testfile
