@@ -7,13 +7,32 @@ jobs:
     name: vulnerability-scan
     timeout-minutes: 5
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Bearer
         uses: ./.github/actions/install_bearer
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::621890795306:role/Github-S3
+          role-session-name: gitHubActions
+
       - name: Scan
         id: test
         run: |
-          bearer scan ./demoapp --fail-on-severity critical
+          if $(bearer scan ./demoapp --fail-on-severity critical --output /tmp/scan-output); then echo 'scan complete - no critical vulnerabilities'; else echo 'scan complete - critical vulnerabilities found!'; touch /tmp/shouldfail; fi
+          cat /tmp/scan-output
+
+      - name: Upload scan to S3
+        run: |
+          aws sts get-caller-identity
+          aws s3api put-object --bucket opentext-demo-code-audit --key vuln-scans/$(date '+%Y-%m-%dT%H:%M:%S').$(git rev-parse --short HEAD) --body /tmp/scan-output
+
+      - name: Fail on scan failure
+        run: |
+          if [ -f /tmp/shouldfail ]; then exit 1; fi
